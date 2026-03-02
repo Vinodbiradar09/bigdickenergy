@@ -2,10 +2,9 @@ import { Project } from "@/lib/types";
 import { GraveyardInfinite } from "@/components/graveyard-infinite";
 
 async function getInitialProjects(): Promise<Project[]> {
-  const res = await fetch(
-    "http://localhost:3000/api/projects?limit=20&offset=0",
-    { cache: "no-store" },
-  );
+  const res = await fetch("api/projects?limit=20&offset=0", {
+    cache: "no-store",
+  });
 
   if (!res.ok) throw new Error("Failed to load graveyard");
 
