@@ -24,4 +24,6 @@ model Project {
   url       String?
   felt      Int      @default(0)
   createdAt DateTime @default(now())
+
+  @@index([felt])
 }
