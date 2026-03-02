@@ -56,15 +56,13 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    console.log("reaching");
     const { searchParams } = new URL(req.url);
-    const limit = Number(searchParams.get("limit")) || 20;
+    const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
     const offset = Number(searchParams.get("offset")) || 0;
 
     const projects = await prisma.project.findMany({
-      orderBy: {
-        felt: "desc",
-        createdAt: "desc",
-      },
+      orderBy: [{ felt: "desc" }, { createdAt: "desc" }],
       take: limit,
       skip: offset,
     });
@@ -73,6 +71,9 @@ export async function GET(req: NextRequest) {
         message: "Ok",
         success: true,
         projects,
+        limit,
+        offset,
+        count: projects.length,
       },
       { status: 200 },
     );
