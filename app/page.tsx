@@ -1,375 +1,153 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Toaster } from "sonner";
-import AmbientBackground from "@/components/AmbientBackground";
-import Tombstone from "@/components/Tombstone";
-import SubmitModal from "@/components/SubmitModal";
 
-type Project = {
-  id: string;
-  name: string;
-  desc: string;
-  cause: string;
-  age: string;
-  eulogy: string;
-  commit: string;
-  github: string;
-  url: string;
-  felt: number;
-  createdAt: string;
-};
-
-const CAUSE_STATS = [
-  { name: "Scope Creep", pct: 36 },
-  { name: "Lost Motivation", pct: 25 },
-  { name: "Too Many Features", pct: 17 },
-  { name: "Tutorial Hell", pct: 11 },
-  { name: "Life Happened", pct: 11 },
-];
+const TARGET = 10_000;
 
 export default function Home() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const LIMIT = 12;
-
-  const fetchProjects = useCallback(
-    async (reset = false) => {
-      setLoading(true);
-      const currentOffset = reset ? 0 : offset;
-      try {
-        const res = await fetch(
-          `/api/projects?limit=${LIMIT}&offset=${currentOffset}`,
-        );
-        const data = await res.json();
-        if (data.success) {
-          setProjects((p) =>
-            reset ? data.projects : [...p, ...data.projects],
-          );
-          setOffset(currentOffset + data.count);
-          setHasMore(data.count === LIMIT);
-        }
-      } finally {
-        setLoading(false);
-      }
-    },
-    [offset],
-  );
+  const [clicks, setClicks] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    fetchProjects(true);
-  }, [fetchProjects]);
+    const saved = Number(localStorage.getItem("bde_clicks") || 0);
+    setClicks(saved);
+    setMounted(true);
+  }, []);
 
-  function handleSuccess() {
-    fetchProjects(true);
-  }
+  const handleClick = () => {
+    if (clicks >= TARGET) return;
 
-  return (
-    <>
-      <Toaster
-        theme="dark"
-        toastOptions={{
-          style: {
-            background: "#0a0a0a",
-            border: "1px solid rgba(57,255,20,0.2)",
-            color: "#39ff14",
-            fontFamily: "var(--font-space-mono)",
-            fontSize: "12px",
-          },
-        }}
-      />
+    const next = clicks + 1;
+    setClicks(next);
+    localStorage.setItem("bde_clicks", String(next));
+  };
 
-      <AmbientBackground />
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-5 pb-48 z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <motion.p
-            className="flicker text-[11px] tracking-[6px] uppercase mb-6"
+  const reset = () => {
+    localStorage.removeItem("bde_clicks");
+    setClicks(0);
+  };
+
+  if (!mounted) return null;
+
+  if (clicks >= TARGET) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-6">
+        <div className="text-center max-w-md">
+          <motion.h1
+            className="bde-brand"
             style={{
-              color: "#39ff14",
               fontFamily: "var(--font-bebas)",
-              textShadow: "0 0 20px #39ff14",
-              fontSize: "14px",
-              letterSpacing: "8px",
+              fontSize: "clamp(56px, 14vw, 160px)",
+              letterSpacing: "4px",
+              lineHeight: 0.9,
+              textAlign: "center",
+              willChange: "background-position, filter",
+            }}
+            animate={{
+              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              filter: ["brightness(1)", "brightness(1.25)", "brightness(1)"],
+            }}
+            transition={{
+              duration: 8,
+              ease: "easeInOut",
+              repeat: Infinity,
             }}
           >
-            BigDickEnergy
-          </motion.p>
-
-          <h1
-            className="glitch-title leading-[0.85] mb-4"
-            style={{
-              fontFamily: "var(--font-creepster)",
-              fontSize: "clamp(56px, 12vw, 140px)",
-              textShadow:
-                "0 0 40px rgba(255,32,32,0.5), 0 0 80px rgba(255,32,32,0.2), 4px 4px 0 #8b0000",
-              color: "#e8dcc8",
-            }}
-          >
-            Graveyard of
+            BIG DICK
             <br />
-            Side Projects
-          </h1>
+            ENERGY
+          </motion.h1>
 
-          <p
-            className="flicker mb-8"
-            style={{
-              fontFamily: "var(--font-bebas)",
-              fontSize: "clamp(14px, 2.5vw, 22px)",
-              letterSpacing: "6px",
-              color: "#39ff14",
-              textShadow: "0 0 20px #39ff14",
-            }}
-          >
-            Where dreams come to rest in peace
+          <p className="mt-4 tracking-widest text-sm opacity-70">CONFIRMED</p>
+
+          <p className="mt-8 text-xs leading-relaxed opacity-40">
+            You clicked ten thousand times.
+            <br />
+            No one was watching.
+            <br />
+            That’s the point.
           </p>
 
-          <p
-            className="text-[13px] italic max-w-lg mx-auto mb-12 leading-relaxed"
-            style={{ color: "rgba(232,220,200,0.45)" }}
+          <button
+            onClick={reset}
+            className="mt-10 px-6 py-2 border border-white/20 text-xs tracking-widest opacity-50 hover:opacity-100 transition"
           >
-            A sacred burial ground for all the apps, tools, startups, and this
-            will only take a weekend projects that never made it. Submit yours.
-            Mourn together.
-          </p>
-        </motion.div>
+            RESET
+          </button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6">
+      <div className="text-center mb-12">
+        <p className="text-xs tracking-widest opacity-40 mb-3">
+          A TEST OF DISCIPLINE
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex gap-8 mb-12 flex-wrap justify-center"
-        >
-          {[
-            { num: projects.length || "...", label: "Projects Buried" },
-            { num: "94%", label: "Died of Scope Creep" },
-            { num: "∞", label: "Regrets" },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="scanline relative text-center border px-6 py-4"
-              style={{
-                borderColor: "rgba(57,255,20,0.2)",
-                background: "rgba(57,255,20,0.03)",
-              }}
-            >
-              <span
-                className="block text-5xl"
-                style={{
-                  fontFamily: "var(--font-bebas)",
-                  color: "#39ff14",
-                  textShadow: "0 0 20px #39ff14",
-                }}
-              >
-                {s.num}
-              </span>
-              <span
-                className="text-[10px] tracking-[3px] uppercase"
-                style={{ color: "rgba(232,220,200,0.4)" }}
-              >
-                {s.label}
-              </span>
-            </div>
-          ))}
-        </motion.div>
-
-        <motion.button
-          whileHover={{
-            y: -3,
-            boxShadow:
-              "0 0 0 1px #ff2020, 6px 6px 0 #8b0000, 0 0 40px rgba(255,32,32,0.3)",
-          }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => setModalOpen(true)}
-          className="text-white px-12 py-5 text-[20px] tracking-[4px] transition-all duration-200"
+        <motion.h1
+          className="bde-brand"
           style={{
-            fontFamily: "var(--font-bebas)",
-            background: "#ff2020",
-            boxShadow: "0 0 0 1px #8b0000, 4px 4px 0 #8b0000",
+            fontFamily: "Impact, sans-serif",
+            fontSize: "clamp(48px, 12vw, 120px)",
+            letterSpacing: "3px",
+            lineHeight: 1,
+            textAlign: "center",
+            willChange: "background-position",
+          }}
+          animate={{
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+          }}
+          transition={{
+            duration: 12,
+            ease: "easeInOut",
+            repeat: Infinity,
           }}
         >
-          ⚰️ Bury Your Project
-        </motion.button>
-      </section>
+          BIG DICK ENERGY
+        </motion.h1>
 
-      <section className="relative z-10 max-w-7xl mx-auto px-5 py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <p
-            className="text-[11px] tracking-[5px] uppercase mb-4"
-            style={{ color: "#39ff14" }}
-          >
-            ☠️ the fallen ☠️
-          </p>
-          <h2
-            className="text-[clamp(40px,6vw,80px)]"
-            style={{
-              fontFamily: "var(--font-creepster)",
-              textShadow: "3px 3px 0 #8b0000",
-            }}
-          >
-            Recent Burials
-          </h2>
-        </motion.div>
+        <p className="mt-4 text-xs tracking-wide opacity-50">
+          Confidence is built. Not announced.
+        </p>
+      </div>
 
-        {loading && projects.length === 0 ? (
-          <div
-            className="text-center py-20"
-            style={{
-              color: "rgba(232,220,200,0.3)",
-              fontFamily: "var(--font-space-mono)",
-              fontSize: "12px",
-            }}
-          >
-            <div className="text-4xl mb-4 animate-pulse">⚰️</div>
-            Digging graves...
-          </div>
-        ) : projects.length === 0 ? (
-          <div
-            className="text-center py-20"
-            style={{ color: "rgba(232,220,200,0.3)" }}
-          >
-            <div className="text-5xl mb-4">🪦</div>
-            <p
-              style={{ fontFamily: "var(--font-creepster)", fontSize: "24px" }}
-            >
-              The graveyard is empty.
-            </p>
-            <p className="text-[12px] mt-2 italic">
-              Be the first to bury your project.
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {projects.map((p, i) => (
-                <Tombstone key={p.id} project={p} index={i} />
-              ))}
-            </div>
-
-            {hasMore && (
-              <div className="text-center mt-12">
-                <button
-                  onClick={() => fetchProjects()}
-                  disabled={loading}
-                  className="text-[14px] tracking-[3px] px-8 py-3 border transition-all hover:border-[#ff2020] hover:text-[#ff2020] disabled:opacity-40"
-                  style={{
-                    fontFamily: "var(--font-bebas)",
-                    borderColor: "rgba(232,220,200,0.2)",
-                    color: "rgba(232,220,200,0.5)",
-                  }}
-                >
-                  {loading ? "Loading..." : "Load More Graves"}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </section>
-
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="relative z-10 max-w-4xl mx-auto px-5 pb-32"
-      >
-        <div className="text-center mb-12">
-          <p
-            className="text-[11px] tracking-[5px] uppercase mb-4"
-            style={{ color: "#39ff14" }}
-          >
-            autopsy report
-          </p>
-          <h2
-            className="text-[clamp(32px,5vw,64px)]"
-            style={{
-              fontFamily: "var(--font-creepster)",
-              textShadow: "3px 3px 0 #8b0000",
-            }}
-          >
-            Cause of Death
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {CAUSE_STATS.map((c, i) => (
-            <motion.div
-              key={c.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="relative border p-5 overflow-hidden"
-              style={{
-                borderColor: "rgba(57,255,20,0.08)",
-                background: "rgba(0,0,0,0.3)",
-              }}
-            >
-              <div
-                className="text-[11px] tracking-[2px] uppercase mb-2"
-                style={{ color: "rgba(232,220,200,0.5)" }}
-              >
-                {c.name}
-              </div>
-              <div
-                className="text-4xl mb-1"
-                style={{ fontFamily: "var(--font-bebas)", color: "#e8dcc8" }}
-              >
-                {c.pct}%
-              </div>
-              <div className="text-[10px]" style={{ color: "#ff2020" }}>
-                of all deaths
-              </div>
-              <motion.div
-                className="absolute bottom-0 left-0 h-[2px]"
-                style={{
-                  background: "linear-gradient(90deg, #8b0000, #ff2020)",
-                }}
-                initial={{ width: 0 }}
-                whileInView={{ width: `${c.pct}%` }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.2, delay: i * 0.1 }}
-              />
-            </motion.div>
-          ))}
-        </div>
-      </motion.section>
-      <footer
-        className="relative z-10 text-center py-16 border-t"
-        style={{
-          borderColor: "rgba(57,255,20,0.06)",
-          color: "rgba(232,220,200,0.2)",
-          fontSize: "11px",
-          letterSpacing: "2px",
-        }}
-      >
+      <div className="text-center mb-10">
         <div
-          className="mb-4"
-          style={{ fontFamily: "var(--font-bebas)", fontSize: "16px" }}
+          style={{
+            fontFamily: "monospace",
+            fontSize: "clamp(48px, 10vw, 96px)",
+          }}
+          className="text-white"
         >
-          BIGDICKENERGY
+          {clicks.toLocaleString()}
         </div>
-        <div>Every project dies. Some just die here.</div>
-        <div className="mt-4 text-[10px] opacity-50">
-          bigdickenergy.vercel.app — no projects were harmed (they were already
-          dead)
-        </div>
-      </footer>
-
-      <SubmitModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSuccess={handleSuccess}
-      />
-    </>
+        <p className="text-xs tracking-widest opacity-30 mt-1">CLICKS</p>
+      </div>
+      <button
+        onClick={handleClick}
+        className="w-64 h-16 border border-white/30 text-sm tracking-widest hover:border-white transition active:translate-y-[2px]"
+      >
+        CLICK
+      </button>
+      <div className="mt-14 max-w-sm text-center text-xs leading-relaxed opacity-35">
+        Anyone can start.
+        <br />
+        Very few finish.
+        <br />
+        <br />
+        Ten thousand clicks.
+        <br />
+        No reward.
+        <br />
+        No applause.
+        <br />
+        <br />
+        If you reach the end,
+        <br />
+        you already know why it mattered.
+      </div>
+    </div>
   );
 }
