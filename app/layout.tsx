@@ -20,13 +20,27 @@ const bebasNeue = Bebas_Neue({
   variable: "--font-bebas",
 });
 
+const faviconSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>
+  <rect width='32' height='32' rx='7' fill='%23111111'/>
+  <rect x='0.5' y='0.5' width='31' height='31' rx='6.5' stroke='rgba(255,255,255,0.12)' stroke-width='1' fill='none'/>
+  <circle cx='16' cy='16' r='10' fill='none' stroke='rgba(255,255,255,0.07)' stroke-width='1'/>
+  <polygon points='16,9 17.5,14 22.5,14 18.5,17 20,22 16,19 12,22 13.5,17 9.5,14 14.5,14' fill='white'/>
+</svg>`;
+
+const faviconHref = `data:image/svg+xml,${faviconSvg}`;
+
 export const metadata: Metadata = {
-  title: "BigDickEnergy — Graveyard of Side Projects",
+  title: "Big Dick Energy",
   description:
-    "A sacred burial ground for all the apps and tools that never made it.",
+    "Think you have it? Stop talking. Prove it. Ten thousand clicks.",
+  icons: {
+    icon: faviconHref,
+    shortcut: faviconHref,
+  },
   openGraph: {
-    title: "BigDickEnergy — Graveyard of Side Projects",
-    description: "Where dreams come to rest in peace.",
+    title: "Big Dick Energy",
+    description:
+      "Think you have it? Stop talking. Prove it. Ten thousand clicks.",
   },
 };
 
@@ -37,6 +51,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href={faviconHref} />
+      </head>
       <body
         className={`${creepster.variable} ${spaceMono.variable} ${bebasNeue.variable} antialiased`}
       >

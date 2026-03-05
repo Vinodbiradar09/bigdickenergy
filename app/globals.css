@@ -4,33 +4,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ─────────────────────────────
-   Fonts
-───────────────────────────── */
 @theme inline {
     --font-creepster: var(--font-creepster);
     --font-bebas: var(--font-bebas);
     --font-mono: var(--font-space-mono);
 }
 
-/* ─────────────────────────────
-   Color System
-───────────────────────────── */
 :root {
-    --black: #050505;
-    --deep: #0a0a0a;
-
     --neon-pink: #ff2fd6;
     --neon-purple: #7a2cff;
     --neon-blue: #2dfcff;
     --neon-green: #39ff14;
-
-    --bone: #e8dcc8;
 }
 
-/* ─────────────────────────────
-   Base Reset
-───────────────────────────── */
 *,
 *::before,
 *::after {
@@ -42,42 +28,26 @@ html {
 }
 
 body {
-    background: radial-gradient(circle at top, #0b0b0b, #050505 70%);
-    color: var(--bone);
-    font-family: var(--font-space-mono), monospace;
+    background: #080808;
+    color: #e8e0d0;
+    font-family: "Courier New", monospace;
     overflow-x: hidden;
-
-    /* 🍆 CUSTOM DICK CURSOR (SVG DATA URI) */
-    cursor:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ctext x='2' y='26' font-size='26'%3E%F0%9F%8D%86%3C/text%3E%3C/svg%3E")
-            16 16,
-        auto;
 }
 
-/* ─────────────────────────────
-   Film Grain Overlay
-───────────────────────────── */
-body::before {
+body::after {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 9999;
-
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
 }
 
-/* ─────────────────────────────
-   Selection
-───────────────────────────── */
 ::selection {
     background: var(--neon-pink);
-    color: black;
+    color: #000;
 }
 
-/* ─────────────────────────────
-   Scrollbar
-───────────────────────────── */
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--neon-purple) transparent;
@@ -91,25 +61,47 @@ body::before {
     background: linear-gradient(180deg, var(--neon-pink), var(--neon-purple));
 }
 
-/* ─────────────────────────────
-   Animated Gradient Text (BDE)
-───────────────────────────── */
-.bde-brand {
-    background: linear-gradient(135deg, #ff2fd6, #7a2cff, #2dfcff, #39ff14);
-    background-size: 400% 400%;
-
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent !important;
-
-    text-shadow:
-        0 0 12px rgba(122, 44, 255, 0.25),
-        0 0 24px rgba(45, 252, 255, 0.15);
+.bde-cursor {
+    cursor:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ctext x='2' y='26' font-size='26'%3E%F0%9F%8D%86%3C/text%3E%3C/svg%3E")
+            16 16,
+        auto;
 }
 
-/* ─────────────────────────────
-   Animations
-───────────────────────────── */
+.bde-logo-mark {
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.bde-progress-fill {
+    background: linear-gradient(
+        90deg,
+        var(--neon-pink),
+        var(--neon-purple),
+        var(--neon-blue)
+    );
+    box-shadow: 0 0 8px rgba(122, 44, 255, 0.6);
+}
+
+.bde-watermark-svg {
+    --mx: 50%;
+    --my: 50%;
+}
+
+.click-ripple {
+    transform: translate(-50%, -50%) scale(0);
+    animation: ripple 0.6s ease-out forwards;
+}
+
+@keyframes ripple {
+    to {
+        transform: translate(-50%, -50%) scale(20);
+        opacity: 0;
+    }
+}
+
 @keyframes titleGlitch {
     0%,
     92%,
@@ -144,15 +136,6 @@ body::before {
     }
 }
 
-@keyframes scanline {
-    0% {
-        left: -100%;
-    }
-    100% {
-        left: 100%;
-    }
-}
-
 @keyframes borderFlow {
     0% {
         background-position: 0%;
@@ -162,48 +145,11 @@ body::before {
     }
 }
 
-/* ─────────────────────────────
-   Utility Classes
-───────────────────────────── */
-.glitch-title {
-    animation: titleGlitch 8s infinite;
-}
-
-.flicker {
-    animation: flicker 5s infinite;
-}
-
-.scanline {
-    position: relative;
-    overflow: hidden;
-}
-
-.scanline::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    height: 1px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        var(--neon-green),
-        transparent
-    );
-    animation: scanline 3s linear infinite;
-}
-
-.modal-border::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    height: 2px;
-    background: linear-gradient(
-        90deg,
-        var(--neon-pink),
-        var(--neon-purple),
-        var(--neon-blue),
-        var(--neon-pink)
-    );
-    background-size: 200%;
-    animation: borderFlow 3s linear infinite;
+@keyframes scanline {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
 }
